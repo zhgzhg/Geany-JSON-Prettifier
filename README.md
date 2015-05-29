@@ -1,8 +1,12 @@
-JSON Prettifier Pugin for Geany
--------------------------------
-A quickly written project, but very useful.
+JSON Prettifier Plugin for Geany Editor
+=======================================
+Geany-JSON-Prettifier is plugin for formatting (prettify) ugly not formatted JSON files.
+----------------------------------------------------------------------------------------
 
-Dependencies: yajl, geany
+####Supported platforms: Linux only
+####Dependencies: yajl, geany, geany-dev(el)
+####License: free
 
-To compile run make.
-Copy the produced json_prettifier.so file to /usr/lib/geany
+###To compile run: `make`
+###To install (you may need root privileges) run: `make install`
+###To clean run: `make clean`
