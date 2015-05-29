@@ -145,12 +145,17 @@ static void my_json_prettify(GeanyDocument *doc)
             yajl_gen_clear(g);
         }
 	}
-	/*else // for debugging
+	else 
 	{
-	    unsigned char * str = yajl_get_error(hand, 1, (unsigned char*)text_string, (size_t)text_len - 1);
-        dialogs_show_msgbox(GTK_MESSAGE_INFO, (const gchar*) str);
-        yajl_free_error(hand, str);
-	}*/
+		unsigned char *err_str = yajl_get_error(hand, 1, (unsigned char*)text_string, (size_t)text_len - 1);
+		msgwin_msg_add(COLOR_RED, -1, doc, 
+			"Prettifying of %s failed!\n%s\nProbably improper format or odd symbols! (%s)", 
+			document_get_basename_for_display(doc, -1),
+			err_str,
+			DOC_FILENAME(doc));
+        //dialogs_show_msgbox(GTK_MESSAGE_INFO, (const gchar*) str); // for debugging
+        yajl_free_error(hand, err_str);
+	}
 
     yajl_gen_free(g);
     yajl_free(hand);
