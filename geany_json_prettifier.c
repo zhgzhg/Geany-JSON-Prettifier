@@ -1,6 +1,6 @@
 /**
  * JSON Prettifier plugin for Geany editor
- * (C) 04.12.2014 zhgzhg @ github.com
+ * (C) 29.05.2015 zhgzhg @ github.com
  * OS: Linux
  * Dependencies: yajl, geany
  */
@@ -24,8 +24,8 @@ GeanyFunctions *geany_functions;
 
 PLUGIN_VERSION_CHECK(211)
 
-//PLUGIN_SET_INFO("JSON Prettifier", "JSON file format prettifier tool.", "1.0", "zhgzhg @@ github.com");
-PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR, GETTEXT_PACKAGE, _("JSON Prettifier"), _("JSON file format prettifier tool."), "1.0", "zhgzhg @@ github.com");
+//PLUGIN_SET_INFO("JSON Prettifier", "JSON file format prettifier tool.", "1.1", "zhgzhg @@ github.com");
+PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR, GETTEXT_PACKAGE, _("JSON Prettifier"), _("JSON file format prettifier tool."), "1.1", "zhgzhg @@ github.com");
 
 static GtkWidget *main_menu_item = NULL;
 
@@ -98,18 +98,28 @@ static void my_json_prettify(GeanyDocument *doc)
     int a = 1;
 
 	gint text_len = 0;
+	gint i = 0;
 	gchar *text_string = NULL;
 
     if (!doc) return;
 	
 	text_len = sci_get_length(doc->editor->sci);
 	if (text_len == 0) return;
-	text_len++;
+	++text_len;
 	
 	text_string = g_malloc(text_len);	
 	if (text_string == NULL) return;
 	
-	text_string = sci_get_contents(doc->editor->sci, text_len);	
+	text_string = sci_get_contents(doc->editor->sci, text_len);
+	
+	// filter characters that may break the formatting
+	
+	utils_str_remove_chars(text_string,	(const gchar *)"\r\n");
+	
+	for (text_len = 0; text_string[text_len]; ++text_len);
+	++text_len;
+	
+	// sci_set_text(doc->editor->sci, text_string); // for debugging
 	
 	/////////////
 
@@ -135,18 +145,17 @@ static void my_json_prettify(GeanyDocument *doc)
             yajl_gen_clear(g);
         }
 	}
-	else
+	/*else // for debugging
 	{
-	    //unsigned char * str = yajl_get_error(hand, 1, (unsigned char*)text_string, (size_t)text_len - 1);
-        //dialogs_show_msgbox(GTK_MESSAGE_INFO, (const gchar*) str);
-        //yajl_free_error(hand, str);
-	}
+	    unsigned char * str = yajl_get_error(hand, 1, (unsigned char*)text_string, (size_t)text_len - 1);
+        dialogs_show_msgbox(GTK_MESSAGE_INFO, (const gchar*) str);
+        yajl_free_error(hand, str);
+	}*/
 
     yajl_gen_free(g);
     yajl_free(hand);
 
 	/////////////	
-	
 	
 	g_free(text_string);
 }
