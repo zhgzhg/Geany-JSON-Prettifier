@@ -18,5 +18,6 @@ Dependencies:
 Compilation
 -----------
 
-To compile: make
-To install: (you may need root privleges): make install
+To compile run: `make`
+
+To install (you may need root privleges) run: `make install`
