@@ -43,12 +43,13 @@ GeanyFunctions *geany_functions;
 
 PLUGIN_VERSION_CHECK(211)
 
-PLUGIN_SET_TRANSLATABLE_INFO(
-	LOCALEDIR,
-	GETTEXT_PACKAGE, _("JSON Prettifier"),
-	_("JSON file format prettifier tool."),
+PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
+	GETTEXT_PACKAGE,
+	_("JSON Prettifier"),
+	_("JSON file format prettifier tool. \
+https://github.com/zhgzhg/Geany-JSON-Prettifier"),
 	"1.1",
-	"zhgzhg @ github.com\n\
+	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
 
