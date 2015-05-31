@@ -12,6 +12,7 @@ build:
 
 install:
 	cp -f ./jsonprettifier.so /usr/lib/geany
+	chmod a+x /usr/lib/geany/jsonprettifier.so
 
 uninstall:
 	rm /usr/lib/geany/jsonprettifier.*

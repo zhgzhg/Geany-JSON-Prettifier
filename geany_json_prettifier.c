@@ -30,8 +30,8 @@
 
 #include <geanyplugin.h>
 
-#include <yajl/yajl_parse.h>
-#include <yajl/yajl_gen.h>
+#include "lloyd-yajl-66cb08c/src/api/yajl_parse.h" /*yajl/yajl_parse.h*/
+#include "lloyd-yajl-66cb08c/src/api/yajl_gen.h" /*yajl/yajl_gen.h*/
 
 #ifdef HAVE_LOCALE_H
 	#include <locale.h>
