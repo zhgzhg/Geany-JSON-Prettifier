@@ -48,7 +48,8 @@ PLUGIN_SET_TRANSLATABLE_INFO(
 	GETTEXT_PACKAGE, _("JSON Prettifier"),
 	_("JSON file format prettifier tool."),
 	"1.1",
-	"zhgzhg @ github.com"
+	"zhgzhg @ github.com\n\
+https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
 
 static GtkWidget *main_menu_item = NULL;

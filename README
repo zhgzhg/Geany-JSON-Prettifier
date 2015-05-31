@@ -1,0 +1,30 @@
+JSON Prettifier
+===============
+
+About
+-----
+
+JSON Prettifier is a plugin used to format and prettify ugly,
+not formatted JSON files.
+
+Usage
+-----
+
+In order to use the plugin you need to load the JSON file you want to
+prettify and then click on Tools/JSON Prettifier.
+
+Requirements
+------------
+	* yajl >= 2.1.0
+
+ 
+Installation
+------------
+Download the plugin @ 
+https://github.com/zhgzhg/Geany-JSON-Prettifier/archive/master.zip
+
+To compile: make
+
+To install (you may need root privileges): make install
+
+To uninstall (you may need root privileges): make uninstall
