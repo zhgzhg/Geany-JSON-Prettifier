@@ -21,3 +21,5 @@ Compilation
 To compile run: `make`
 
 To install (you may need root privleges) run: `make install`
+
+To uninstall (you may need root privleges) run: `make uninstall`
