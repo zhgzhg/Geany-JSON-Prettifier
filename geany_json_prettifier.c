@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include <geanyplugin.h>
+#include <gdk/gdkkeysyms.h> /* for the key bindings */
 
 #include "lloyd-yajl-66cb08c/src/api/yajl_parse.h" /*yajl/yajl_parse.h*/
 #include "lloyd-yajl-66cb08c/src/api/yajl_gen.h" /*yajl/yajl_gen.h*/
@@ -52,6 +53,7 @@ https://github.com/zhgzhg/Geany-JSON-Prettifier"),
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
+PLUGIN_KEY_GROUP(json_prettifier, 1)
 
 static GtkWidget *main_menu_item = NULL;
 
@@ -223,6 +225,11 @@ static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
 	my_json_prettify(document_get_current());
 }
 
+static void kb_run_json_prettifier(G_GNUC_UNUSED guint key_id)
+{
+	my_json_prettify(document_get_current());
+}
+
 
 void plugin_init(GeanyData *data)
 {
@@ -232,6 +239,13 @@ void plugin_init(GeanyData *data)
 						main_menu_item);
 	g_signal_connect(main_menu_item, "activate",
 						G_CALLBACK(item_activate_cb), NULL);
+	
+	/* Ctrl + Alt + j */
+	keybindings_set_item(plugin_key_group, 0, kb_run_json_prettifier,
+                         GDK_j, GDK_CONTROL_MASK | GDK_MOD1_MASK,
+                         "run_json_prettifier",
+                         _("Run the JSON Prettifier"),
+                         main_menu_item);
 }
 
 
