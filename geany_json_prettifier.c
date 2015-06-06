@@ -49,7 +49,7 @@ PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	_("JSON Prettifier"),
 	_("JSON file format prettifier tool. \
 https://github.com/zhgzhg/Geany-JSON-Prettifier"),
-	"1.1",
+	"1.2",
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
@@ -239,6 +239,9 @@ void plugin_init(GeanyData *data)
 						main_menu_item);
 	g_signal_connect(main_menu_item, "activate",
 						G_CALLBACK(item_activate_cb), NULL);
+
+	/* do not activate if there are do documents opened */
+	ui_add_document_sensitive(main_menu_item);
 	
 	/* Ctrl + Alt + j */
 	keybindings_set_item(plugin_key_group, 0, kb_run_json_prettifier,
