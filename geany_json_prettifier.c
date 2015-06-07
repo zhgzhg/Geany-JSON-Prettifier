@@ -47,9 +47,9 @@ PLUGIN_VERSION_CHECK(211)
 PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	GETTEXT_PACKAGE,
 	_("JSON Prettifier"),
-	_("JSON file format prettifier tool. \
+	_("JSON file format prettifier and validator. \
 https://github.com/zhgzhg/Geany-JSON-Prettifier"),
-	"1.2",
+	"1.2.1",
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
@@ -195,6 +195,12 @@ static void my_json_prettify(GeanyDocument *doc)
 			sci_set_text(doc->editor->sci, (const gchar*) buf);
 			yajl_gen_clear(g);
 		}
+
+		msgwin_msg_add(COLOR_BLUE, -1, doc,
+			"Prettifying of %s succeeded! (%s)",
+			document_get_basename_for_display(doc, -1),
+			DOC_FILENAME(doc)
+		);
 	}
 	else
 	{

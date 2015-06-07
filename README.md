@@ -1,7 +1,7 @@
 JSON Prettifier Plugin for Geany
 ================================
 
-JSON Prettifier is a plugin used to format and prettify ugly,
+JSON Prettifier is a plugin used to validate, format and prettify ugly,
 not formatted JSON files.
 
 This repository represents an independent project whose results could
