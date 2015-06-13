@@ -15,6 +15,9 @@ Dependencies:
 * geany, geany-dev(el)
 * yajl, yajl-dev(el)  --- version(2) --- integrated in this repository
 
+* make
+* cmake
+
 Compilation
 -----------
 
