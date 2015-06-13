@@ -1,5 +1,11 @@
+libdir.x86_64 = /usr/lib64
+libdir.i686   = /usr/lib
+
+MACHINE := $(shell uname -m)
+
+libdir = $(libdir.$(MACHINE))
+
 all: prepare build
-	
 
 prepare:
 	cd ./lloyd-yajl-66cb08c && bash configure
@@ -13,12 +19,12 @@ build:
 install: uninstall startinstall
 
 startinstall:
-	cp -f ./jsonprettifier.so /usr/lib/geany
-	chmod 755 /usr/lib/geany/jsonprettifier.so
+	cp -f ./jsonprettifier.so $(libdir)/geany
+	chmod 755 $(libdir)/geany/jsonprettifier.so
 
 uninstall:
-	rm -f /usr/lib/geany/jsonprettifier.*
-	rm -f /usr/lib/geany/json_prettifier.*	
+	rm -f $(libdir)/geany/jsonprettifier.*
+	rm -f $(libdir)/geany/json_prettifier.*	
 
 clean:
 	rm -f ./jsonprettifier.so
