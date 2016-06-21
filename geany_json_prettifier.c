@@ -53,7 +53,6 @@ https://github.com/zhgzhg/Geany-JSON-Prettifier"),
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
-//PLUGIN_KEY_GROUP(json_prettifier, 1)
 
 static GtkWidget *main_menu_item = NULL;
 
