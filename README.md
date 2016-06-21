@@ -12,7 +12,8 @@ be manually integrated with Geany.
 
 Dependencies: 
 
-* geany, geany-dev(el)
+* geany, geany-dev(el), geany-plugins-common
+* gtk+2.0-dev(el)
 * yajl, yajl-dev(el)  --- version(2) --- integrated in this repository
 
 * make
