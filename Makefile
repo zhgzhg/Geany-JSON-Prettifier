@@ -1,5 +1,5 @@
-libdir.x86_64 = /usr/lib64
-libdir.i686   = /usr/lib
+libdir.x86_64 := $(shell if [ -d "/usr/lib/x86_64-linux-gnu" ]; then echo "/usr/lib/x86_64-linux-gnu"; else echo "/usr/lib64"; fi )
+libdir.i686   := $(shell if [ -d "/usr/lib/i386-linux-gnu" ]; then echo "/usr/lib/i386-linux-gnu"; else echo "/usr/lib"; fi )
 
 MACHINE := $(shell uname -m)
 
