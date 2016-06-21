@@ -2,7 +2,7 @@
  * geany_json_prettifier.c - a Geany plugin to format not formatted
  *                            JSON files
  *
- *  Copyright 2015 zhgzhg @ github.com
+ *  Copyright 2016 zhgzhg @ github.com
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,21 +39,21 @@
 #endif
 
 GeanyPlugin *geany_plugin;
+struct GeanyKeyGroup *geany_key_group;
 GeanyData *geany_data;
-GeanyFunctions *geany_functions;
 
-PLUGIN_VERSION_CHECK(211)
+PLUGIN_VERSION_CHECK(224)
 
 PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	GETTEXT_PACKAGE,
 	_("JSON Prettifier"),
 	_("JSON file format prettifier and validator. \
 https://github.com/zhgzhg/Geany-JSON-Prettifier"),
-	"1.2.1",
+	"1.3.0",
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
-PLUGIN_KEY_GROUP(json_prettifier, 1)
+//PLUGIN_KEY_GROUP(json_prettifier, 1)
 
 static GtkWidget *main_menu_item = NULL;
 
@@ -248,9 +248,14 @@ void plugin_init(GeanyData *data)
 
 	/* do not activate if there are do documents opened */
 	ui_add_document_sensitive(main_menu_item);
-	
+
+
+	/* Register shortcut key group */
+	geany_key_group = plugin_set_key_group(
+						geany_plugin, _("json_prettifier"), 1, NULL);
+
 	/* Ctrl + Alt + j */
-	keybindings_set_item(plugin_key_group, 0, kb_run_json_prettifier,
+	keybindings_set_item(geany_key_group, 0, kb_run_json_prettifier,
                          GDK_j, GDK_CONTROL_MASK | GDK_MOD1_MASK,
                          "run_json_prettifier",
                          _("Run the JSON Prettifier"),
