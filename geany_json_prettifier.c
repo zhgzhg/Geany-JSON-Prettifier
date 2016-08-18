@@ -42,7 +42,6 @@
 GeanyPlugin *geany_plugin;
 struct GeanyKeyGroup *geany_key_group;
 GeanyData *geany_data;
-GeanyData *geany_data;
 
 static gchar *plugin_config_path = NULL;
 static GKeyFile *keyfile_plugin = NULL;
@@ -54,7 +53,7 @@ PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	_("JSON Prettifier"),
 	_("JSON file format prettifier, minifier and validator.\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"),
-	"1.4.0",
+	"1.4.1",
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
@@ -64,10 +63,12 @@ static GtkWidget *main_menu_item2 = NULL;
 static GtkWidget *escape_forward_slashes_btn = NULL;
 static GtkWidget *allow_invalid_utf8_text_strings_btn = NULL;
 static GtkWidget *reformat_multiple_json_entities_at_once_btn = NULL;
+static GtkWidget *show_errors_in_window_btn = NULL;
 
 static gboolean escapeForwardSlashes = FALSE;
 static gboolean allowInvalidStringsInUtf8 = TRUE;
 static gboolean reformatMultipleJsonEntities = FALSE;
+static gboolean showErrorsInPopupWindow = TRUE;
 
 /* JSON Prettifier Code - yajl example used as a basis */
 
@@ -176,7 +177,7 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 
 	if (!doc) return;
 
-	/* load the text and preparse it */
+	/* load the text and prepares it */
 
 	gboolean workWithTextSelection = FALSE;
 
@@ -273,6 +274,12 @@ Probably improper format or odd symbols! (%s)",
 			err_str,
 			DOC_FILENAME(doc));
 
+		if (showErrorsInPopupWindow)
+		{
+			dialogs_show_msgbox(GTK_MESSAGE_ERROR,
+				(const gchar*) err_str);
+		}
+
 		yajl_free_error(hand, err_str);
 	}
 
@@ -339,6 +346,12 @@ static void on_configure_response(GtkDialog* dialog, gint response,
 							"reformat_multiple_json_entities_at_once",
 							value);
 
+		value = gtk_toggle_button_get_active(
+						GTK_TOGGLE_BUTTON(show_errors_in_window_btn));
+		showErrorsInPopupWindow = value;
+		config_set_setting(keyfile_plugin, "show_errors_in_window",
+							value);
+
 
 		config_save_setting(keyfile_plugin, plugin_config_path);
 	}
@@ -355,6 +368,8 @@ static void config_set_defaults(GKeyFile *keyfile)
 	config_set_setting(keyfile,
 		"reformat_multiple_json_entities_at_once", FALSE);
 	reformatMultipleJsonEntities = FALSE;
+	config_set_setting(keyfile, "show_errors_in_window", TRUE);
+	showErrorsInPopupWindow = TRUE;
 }
 
 GtkWidget *plugin_configure(GtkDialog *dialog)
@@ -363,6 +378,8 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	GtkWidget *_hbox1 = gtk_hbox_new(FALSE, 6);
 	GtkWidget *_hbox2 = gtk_hbox_new(FALSE, 6);
 	GtkWidget *_hbox3 = gtk_hbox_new(FALSE, 6);
+	GtkWidget *_hbox4 = gtk_hbox_new(FALSE, 6);
+
 
 	escape_forward_slashes_btn = gtk_check_button_new_with_label(
 		_("Escape any forward slashes."));
@@ -389,7 +406,11 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 		config_get_setting(keyfile_plugin,
 				"reformat_multiple_json_entities_at_once"));
 
-
+	show_errors_in_window_btn = gtk_check_button_new_with_label(
+				_("Show errors in a message window."));
+	gtk_toggle_button_set_active(
+		GTK_TOGGLE_BUTTON(show_errors_in_window_btn),
+		config_get_setting(keyfile_plugin, "show_errors_in_window"));
 
 	gtk_box_pack_start(GTK_BOX(_hbox1), escape_forward_slashes_btn,
 						TRUE, TRUE, 0);
@@ -399,10 +420,13 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	gtk_box_pack_start(GTK_BOX(_hbox3),
 						reformat_multiple_json_entities_at_once_btn,
 						TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(_hbox4),	show_errors_in_window_btn,
+						TRUE, TRUE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox1, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox2, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox3, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), _hbox4, FALSE, FALSE, 0);
 
 	gtk_widget_show_all(vbox);
 
@@ -465,6 +489,9 @@ void plugin_init(GeanyData *data)
 		reformatMultipleJsonEntities = config_get_setting(
 							keyfile_plugin,
 							"reformat_multiple_json_entities_at_once");
+
+		showErrorsInPopupWindow = config_get_setting(keyfile_plugin,
+							"show_errors_in_window");
 	}
 
 	/* ---------------------------- */
