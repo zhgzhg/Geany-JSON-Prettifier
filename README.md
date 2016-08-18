@@ -2,15 +2,26 @@ JSON Prettifier Plugin for Geany
 ================================
 
 JSON Prettifier is a plugin used to validate, format and prettify ugly,
-not formatted JSON files.
+not formatted JSON files or to minify a prettified ones.
 
 This repository represents an independent project whose results could
 be manually integrated with Geany.
 
+Features:
+
+* Pretty formatting
+* Minification formatting
+* Full or partial JSON validation (configurable)
+* Escaping of forward slashes (configurable)
+* Distinguishes separate JSON entities in one file while formatting all
+of them (configurable)
+* Support for partial formatting limited to the text that is currently
+selected
+
 * Supported platforms: Linux
 * License: GPLv2 or later
 
-Dependencies: 
+Dependencies:
 
 * geany, geany-dev(el), geany-plugins-common
 * gtk+2.0-dev(el)
