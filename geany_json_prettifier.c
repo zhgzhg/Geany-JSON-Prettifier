@@ -53,7 +53,7 @@ PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	_("JSON Prettifier"),
 	_("JSON file format prettifier, minifier and validator.\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"),
-	"1.4.1",
+	"1.4.2",
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
@@ -253,6 +253,15 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 						editor_get_eol_char(doc->editor));
 				}
 			}
+
+			// Change the cursor position to the start of the line
+			// and scroll to there
+			gint cursPos = sci_get_current_position(doc->editor->sci);
+			gint colPos = sci_get_col_from_position(doc->editor->sci,
+						cursPos);
+			sci_set_current_position(doc->editor->sci,
+				cursPos - colPos, TRUE);
+
 			yajl_gen_clear(g);
 		}
 
