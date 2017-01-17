@@ -2,7 +2,7 @@
  * geany_json_prettifier.c - a Geany plugin to format not formatted
  *                            JSON files
  *
- *  Copyright 2016 zhgzhg @ github.com
+ *  Copyright 2017 zhgzhg @ github.com
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -53,10 +53,22 @@ PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	_("JSON Prettifier"),
 	_("JSON file format prettifier, minifier and validator.\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"),
-	"1.4.2",
+	"1.5",
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
+
+static const gchar *fcfg_g_settings = "settings";
+static const gchar *fcfg_e_escForwardSlashed = "escape_forward_slashes";
+static const gchar *fcfg_e_allowInvalUtf8TextStr =
+	"allow_invalid_utf8_text_strings";
+static const gchar *fcfg_e_reformatMultJsonEntities =
+	"reformat_multiple_json_entities_at_once";
+static const gchar *fcfg_e_showErrsInWindow = "show_errors_in_window";
+static const gchar *fcfg_e_useTabsForIdent =
+	"use_tabs_for_identation";
+static const gchar *fcfg_e_identSymbolsCnt =
+	"identation_symbols_count";
 
 static GtkWidget *main_menu_item = NULL;
 static GtkWidget *main_menu_item2 = NULL;
@@ -64,11 +76,18 @@ static GtkWidget *escape_forward_slashes_btn = NULL;
 static GtkWidget *allow_invalid_utf8_text_strings_btn = NULL;
 static GtkWidget *reformat_multiple_json_entities_at_once_btn = NULL;
 static GtkWidget *show_errors_in_window_btn = NULL;
+static GtkWidget *values_identation_tabs_rbtn = NULL;
+static GtkWidget *values_identation_spaces_rbtn = NULL;
+static GtkWidget *values_identation_symbols_count_lbl = NULL;
+static GtkWidget *values_identation_symbols_count_sbtn = NULL;;
 
 static gboolean escapeForwardSlashes = FALSE;
 static gboolean allowInvalidStringsInUtf8 = TRUE;
 static gboolean reformatMultipleJsonEntities = FALSE;
 static gboolean showErrorsInPopupWindow = TRUE;
+static gboolean textIdentationWithTabs = FALSE;
+static guint textIdentationSymbolsCount = 4;
+static gchar textIdentationString[1025] = "    ";
 
 /* JSON Prettifier Code - yajl example used as a basis */
 
@@ -216,6 +235,7 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 	yajl_gen_config(g, yajl_gen_validate_utf8, 1);
 	yajl_gen_config(g, yajl_gen_escape_solidus,
 			escapeForwardSlashes);
+	yajl_gen_config(g, yajl_gen_indent_string, textIdentationString);
 
 
 	hand = yajl_alloc(&callbacks, NULL, (void *) g);
@@ -300,7 +320,8 @@ Probably improper format or odd symbols! (%s)",
 
 /* Plugin settings */
 
-static void config_save_setting(GKeyFile *keyfile, const gchar *filePath)
+static void config_save_setting(GKeyFile *keyfile,
+								const gchar *filePath)
 {
 	if (keyfile && filePath)
 		g_key_file_save_to_file(keyfile, filePath, NULL);
@@ -310,9 +331,24 @@ static void config_save_setting(GKeyFile *keyfile, const gchar *filePath)
 static gboolean config_get_setting(GKeyFile *keyfile, const gchar *name)
 {
 	if (keyfile)
-		return g_key_file_get_boolean(keyfile, "settings", name, NULL);
+		return g_key_file_get_boolean(keyfile, fcfg_g_settings, name,
+			NULL);
 
 	return FALSE;
+}
+
+
+static gint config_get_uint_setting(GKeyFile *keyfile,
+									const gchar *name, guint maxVal)
+{
+	gint value = 0;
+	if (keyfile) {
+		value = g_key_file_get_integer(keyfile, fcfg_g_settings, name,
+			NULL);
+		if (value < 0 || value > maxVal) value = 0;
+	}
+
+	return value;
 }
 
 
@@ -320,13 +356,25 @@ static void config_set_setting(GKeyFile *keyfile, const gchar *name,
 								gboolean value)
 {
 	if (keyfile)
-		g_key_file_set_boolean(keyfile, "settings", name, value);
+		g_key_file_set_boolean(keyfile, fcfg_g_settings, name, value);
+}
+
+
+static void config_set_uint_setting(GKeyFile *keyfile,
+									const gchar *name, gint value,
+									guint maxVal)
+{
+	if (keyfile) {
+		if (value < 0 || value > maxVal) value = 0;
+		g_key_file_set_integer(keyfile, fcfg_g_settings, name, value);
+	}
 }
 
 static void on_configure_response(GtkDialog* dialog, gint response,
 									gpointer user_data)
 {
 	gboolean value = FALSE;
+	gint i = 0;
 
 	if (keyfile_plugin &&
 		(response == GTK_RESPONSE_OK || response == GTK_RESPONSE_APPLY))
@@ -336,7 +384,7 @@ static void on_configure_response(GtkDialog* dialog, gint response,
 								escape_forward_slashes_btn));
 		escapeForwardSlashes = value;
 		config_set_setting(keyfile_plugin,
-							"escape_forward_slashes", value);
+							fcfg_e_escForwardSlashed, value);
 
 
 		value = gtk_toggle_button_get_active(
@@ -344,7 +392,7 @@ static void on_configure_response(GtkDialog* dialog, gint response,
 								allow_invalid_utf8_text_strings_btn));
 		allowInvalidStringsInUtf8 = value;
 		config_set_setting(keyfile_plugin,
-							"allow_invalid_utf8_text_strings", value);
+							fcfg_e_allowInvalUtf8TextStr, value);
 
 
 		value = gtk_toggle_button_get_active(
@@ -352,15 +400,32 @@ static void on_configure_response(GtkDialog* dialog, gint response,
 						reformat_multiple_json_entities_at_once_btn));
 		reformatMultipleJsonEntities = value;
 		config_set_setting(keyfile_plugin,
-							"reformat_multiple_json_entities_at_once",
+							fcfg_e_reformatMultJsonEntities,
 							value);
 
 		value = gtk_toggle_button_get_active(
 						GTK_TOGGLE_BUTTON(show_errors_in_window_btn));
 		showErrorsInPopupWindow = value;
-		config_set_setting(keyfile_plugin, "show_errors_in_window",
+		config_set_setting(keyfile_plugin, fcfg_e_showErrsInWindow,
 							value);
 
+		value = gtk_toggle_button_get_active(
+					GTK_TOGGLE_BUTTON(values_identation_tabs_rbtn));
+		textIdentationWithTabs = value;
+		config_set_setting(keyfile_plugin, fcfg_e_useTabsForIdent,
+							value);
+
+		i = gtk_spin_button_get_value_as_int(
+				GTK_SPIN_BUTTON(values_identation_symbols_count_sbtn));
+		textIdentationSymbolsCount = i;
+
+		for (i = 0; i < textIdentationSymbolsCount; ++i) {
+			textIdentationString[i] = (textIdentationWithTabs ? '\t' : ' ');
+		}
+		textIdentationString[i] = '\0';
+
+		config_set_uint_setting(keyfile_plugin, fcfg_e_identSymbolsCnt,
+							i, 1024);
 
 		config_save_setting(keyfile_plugin, plugin_config_path);
 	}
@@ -369,25 +434,37 @@ static void on_configure_response(GtkDialog* dialog, gint response,
 static void config_set_defaults(GKeyFile *keyfile)
 {
 	if (!keyfile) return;
-	config_set_setting(keyfile,	"escape_forward_slashes", FALSE);
-	escapeForwardSlashes = FALSE;
-	config_set_setting(keyfile, "allow_invalid_utf8_text_strings",
-		TRUE);
-	allowInvalidStringsInUtf8 = TRUE;
-	config_set_setting(keyfile,
-		"reformat_multiple_json_entities_at_once", FALSE);
-	reformatMultipleJsonEntities = FALSE;
-	config_set_setting(keyfile, "show_errors_in_window", TRUE);
-	showErrorsInPopupWindow = TRUE;
+
+	config_set_setting(keyfile,	fcfg_e_escForwardSlashed,
+		escapeForwardSlashes = FALSE);
+
+	config_set_setting(keyfile, fcfg_e_allowInvalUtf8TextStr,
+		allowInvalidStringsInUtf8 = TRUE);
+
+	config_set_setting(keyfile, fcfg_e_reformatMultJsonEntities,
+		reformatMultipleJsonEntities = FALSE);
+
+	config_set_setting(keyfile, fcfg_e_showErrsInWindow,
+		showErrorsInPopupWindow = TRUE);
+
+	config_set_setting(keyfile, fcfg_e_useTabsForIdent,
+		textIdentationWithTabs = FALSE);
+
+	config_set_uint_setting(keyfile, fcfg_e_identSymbolsCnt,
+		textIdentationSymbolsCount = 4, 1024);
 }
 
 GtkWidget *plugin_configure(GtkDialog *dialog)
 {
+	gboolean isSet = FALSE;
+	gint i = 0;
+
 	GtkWidget *vbox = gtk_vbox_new(FALSE, 6);
 	GtkWidget *_hbox1 = gtk_hbox_new(FALSE, 6);
 	GtkWidget *_hbox2 = gtk_hbox_new(FALSE, 6);
 	GtkWidget *_hbox3 = gtk_hbox_new(FALSE, 6);
 	GtkWidget *_hbox4 = gtk_hbox_new(FALSE, 6);
+	GtkWidget *_hbox5 = gtk_hbox_new(FALSE, 6);
 
 
 	escape_forward_slashes_btn = gtk_check_button_new_with_label(
@@ -395,7 +472,7 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	gtk_toggle_button_set_active(
 		GTK_TOGGLE_BUTTON(escape_forward_slashes_btn),
 		config_get_setting(keyfile_plugin,
-							"escape_forward_slashes"));
+							fcfg_e_escForwardSlashed));
 
 
 	allow_invalid_utf8_text_strings_btn =
@@ -404,8 +481,7 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	gtk_toggle_button_set_active(
 		GTK_TOGGLE_BUTTON(allow_invalid_utf8_text_strings_btn),
 		config_get_setting(keyfile_plugin,
-				"allow_invalid_utf8_text_strings"));
-
+				fcfg_e_allowInvalUtf8TextStr));
 
 	reformat_multiple_json_entities_at_once_btn =
 		gtk_check_button_new_with_label(
@@ -413,13 +489,44 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	gtk_toggle_button_set_active(
 		GTK_TOGGLE_BUTTON(reformat_multiple_json_entities_at_once_btn),
 		config_get_setting(keyfile_plugin,
-				"reformat_multiple_json_entities_at_once"));
+				fcfg_e_reformatMultJsonEntities));
+
+	isSet = config_get_setting(keyfile_plugin,
+				fcfg_e_useTabsForIdent);
+
+	values_identation_spaces_rbtn = gtk_radio_button_new_with_label(
+			NULL, "Ident values with spaces");
+	gtk_toggle_button_set_active(
+			GTK_TOGGLE_BUTTON(values_identation_spaces_rbtn), isSet);
+
+	values_identation_tabs_rbtn = gtk_radio_button_new_with_label(
+		gtk_radio_button_get_group(GTK_RADIO_BUTTON(
+				values_identation_spaces_rbtn)),
+				"Ident values with tabs");
+	gtk_toggle_button_set_active(
+		GTK_TOGGLE_BUTTON (values_identation_tabs_rbtn), isSet);
+	gtk_toggle_button_set_active(
+		GTK_TOGGLE_BUTTON (values_identation_spaces_rbtn), !isSet);
+
+	values_identation_symbols_count_lbl = gtk_label_new("Symbols count:");
+	values_identation_symbols_count_sbtn =
+		gtk_spin_button_new_with_range(1,1024, 1);
+	i = config_get_uint_setting(keyfile_plugin, fcfg_e_identSymbolsCnt, 1024);
+	if (i == 0) {
+		if (isSet) {
+			i = 1;
+		} else {
+			i = 4;
+		}
+	}
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(
+		values_identation_symbols_count_sbtn), i);
 
 	show_errors_in_window_btn = gtk_check_button_new_with_label(
 				_("Show errors in a message window."));
 	gtk_toggle_button_set_active(
 		GTK_TOGGLE_BUTTON(show_errors_in_window_btn),
-		config_get_setting(keyfile_plugin, "show_errors_in_window"));
+		config_get_setting(keyfile_plugin, fcfg_e_showErrsInWindow));
 
 	gtk_box_pack_start(GTK_BOX(_hbox1), escape_forward_slashes_btn,
 						TRUE, TRUE, 0);
@@ -429,13 +536,28 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	gtk_box_pack_start(GTK_BOX(_hbox3),
 						reformat_multiple_json_entities_at_once_btn,
 						TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(_hbox4),	show_errors_in_window_btn,
+
+	gtk_box_pack_start(GTK_BOX(_hbox4),
+						values_identation_spaces_rbtn,
+						TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(_hbox4),
+						values_identation_tabs_rbtn,
+						TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(_hbox4),
+						values_identation_symbols_count_lbl,
+						TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(_hbox4),
+						values_identation_symbols_count_sbtn,
+						TRUE, TRUE, 0);
+
+	gtk_box_pack_start(GTK_BOX(_hbox5),	show_errors_in_window_btn,
 						TRUE, TRUE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox1, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox2, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox3, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox4, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), _hbox5, FALSE, FALSE, 0);
 
 	gtk_widget_show_all(vbox);
 
@@ -470,6 +592,8 @@ static void kb_run_json_minifier(G_GNUC_UNUSED guint key_id)
 
 void plugin_init(GeanyData *data)
 {
+	guint i = 0;
+
 	/* read & prepare configuration */
 	gchar *config_dir = g_build_path(G_DIR_SEPARATOR_S,
 		geany_data->app->configdir, "plugins", "jsonconverter", NULL);
@@ -490,17 +614,34 @@ void plugin_init(GeanyData *data)
 	else
 	{
 		escapeForwardSlashes = config_get_setting(keyfile_plugin,
-									"escape_forward_slashes");
+									fcfg_e_escForwardSlashed);
 
 		allowInvalidStringsInUtf8 = config_get_setting(keyfile_plugin,
-									"allow_invalid_utf8_text_strings");
+									fcfg_e_allowInvalUtf8TextStr);
 
 		reformatMultipleJsonEntities = config_get_setting(
 							keyfile_plugin,
-							"reformat_multiple_json_entities_at_once");
+							fcfg_e_reformatMultJsonEntities);
 
 		showErrorsInPopupWindow = config_get_setting(keyfile_plugin,
-							"show_errors_in_window");
+							fcfg_e_showErrsInWindow);
+
+		textIdentationWithTabs = config_get_setting(keyfile_plugin,
+							fcfg_e_useTabsForIdent);
+
+		textIdentationSymbolsCount = config_get_uint_setting(
+							keyfile_plugin,
+							fcfg_e_identSymbolsCnt,
+							1024);
+
+		if (textIdentationSymbolsCount == 0) {
+			textIdentationSymbolsCount = (textIdentationWithTabs ?
+				1 : 4);
+		}
+		for (i = 0; i < textIdentationSymbolsCount; ++i) {
+			textIdentationString[i] = (textIdentationWithTabs ? '\t' : ' ');
+		}
+		textIdentationString[i] = '\0';
 	}
 
 	/* ---------------------------- */

@@ -17,6 +17,7 @@ Features:
 of them (configurable)
 * Support for partial formatting limited to the text that is currently
 selected
+* Identation format settings (spaces or tabs plus number of symbols)
 
 * Supported platforms: Linux
 * License: GPLv2 or later
