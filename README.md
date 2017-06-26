@@ -30,6 +30,7 @@ Dependencies:
 
 * make
 * cmake
+* pkg-config
 
 Compilation
 -----------
