@@ -285,11 +285,6 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 			yajl_gen_clear(g);
 		}
 
-		msgwin_msg_add(COLOR_BLUE, -1, doc,
-			"Prettifying of %s succeeded! (%s)",
-			document_get_basename_for_display(doc, -1),
-			DOC_FILENAME(doc)
-		);
 	}
 	else
 	{
