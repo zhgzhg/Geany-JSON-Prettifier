@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <sys/stat.h>
 
 #include <geanyplugin.h>
@@ -53,7 +54,7 @@ PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	_("JSON Prettifier"),
 	_("JSON file format prettifier, minifier and validator.\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"),
-	"1.5",
+	"1.5.1",
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
@@ -69,6 +70,8 @@ static const gchar *fcfg_e_useTabsForIdent =
 	"use_tabs_for_identation";
 static const gchar *fcfg_e_identSymbolsCnt =
 	"identation_symbols_count";
+static const gchar *fcfg_e_logMsgOnFormattingSuccess =
+	"log_formatting_success_messages";
 
 static GtkWidget *main_menu_item = NULL;
 static GtkWidget *main_menu_item2 = NULL;
@@ -79,7 +82,8 @@ static GtkWidget *show_errors_in_window_btn = NULL;
 static GtkWidget *values_identation_tabs_rbtn = NULL;
 static GtkWidget *values_identation_spaces_rbtn = NULL;
 static GtkWidget *values_identation_symbols_count_lbl = NULL;
-static GtkWidget *values_identation_symbols_count_sbtn = NULL;;
+static GtkWidget *values_identation_symbols_count_sbtn = NULL;
+static GtkWidget *log_formatting_success_messages_btn = NULL;
 
 static gboolean escapeForwardSlashes = FALSE;
 static gboolean allowInvalidStringsInUtf8 = TRUE;
@@ -88,6 +92,7 @@ static gboolean showErrorsInPopupWindow = TRUE;
 static gboolean textIdentationWithTabs = FALSE;
 static guint textIdentationSymbolsCount = 4;
 static gchar textIdentationString[1025] = "    ";
+static gboolean logFormattingSuccessMessages = TRUE;
 
 /* JSON Prettifier Code - yajl example used as a basis */
 
@@ -230,6 +235,20 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 
 	/* begin the prettifying process */
 
+	const gchar *chosenActionString = (
+			beautify ? "Prettifying" : "Minifying");
+	gchar timeNow[11];
+	{
+		time_t rawtime;
+		struct tm * timeinfo;
+		time (&rawtime);
+		timeinfo = localtime(&rawtime);
+		if (strftime(timeNow, sizeof(timeNow), "%T", timeinfo) == 0) {
+			timeNow[0] = '\0';
+		}
+	}
+
+
 	g = yajl_gen_alloc(NULL);
 	yajl_gen_config(g, yajl_gen_beautify, beautify);
 	yajl_gen_config(g, yajl_gen_validate_utf8, 1);
@@ -283,6 +302,16 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 				cursPos - colPos, TRUE);
 
 			yajl_gen_clear(g);
+
+			if (logFormattingSuccessMessages) {
+				msgwin_msg_add(COLOR_BLUE, -1, doc,
+					"[%s] %s of %s succeeded! (%s)",
+					timeNow,
+					chosenActionString,
+					document_get_basename_for_display(doc, -1),
+					DOC_FILENAME(doc)
+				);
+			}
 		}
 
 	}
@@ -292,8 +321,10 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 					(unsigned char*)text_string, (size_t)text_len - 1);
 
 		msgwin_msg_add(COLOR_RED, -1, doc,
-			"Prettifying of %s failed!\n%s\n\
+			"[%s] %s of %s failed!\n%s\n\
 Probably improper format or odd symbols! (%s)",
+			timeNow,
+			chosenActionString,
 			document_get_basename_for_display(doc, -1),
 			err_str,
 			DOC_FILENAME(doc));
@@ -394,28 +425,35 @@ static void on_configure_response(GtkDialog* dialog, gint response,
 					GTK_TOGGLE_BUTTON(
 						reformat_multiple_json_entities_at_once_btn));
 		reformatMultipleJsonEntities = value;
-		config_set_setting(keyfile_plugin,
-							fcfg_e_reformatMultJsonEntities,
-							value);
+		config_set_setting(
+			keyfile_plugin, fcfg_e_reformatMultJsonEntities, value);
 
 		value = gtk_toggle_button_get_active(
 						GTK_TOGGLE_BUTTON(show_errors_in_window_btn));
 		showErrorsInPopupWindow = value;
-		config_set_setting(keyfile_plugin, fcfg_e_showErrsInWindow,
-							value);
+		config_set_setting(
+			keyfile_plugin, fcfg_e_showErrsInWindow, value);
+
+		value = gtk_toggle_button_get_active(
+						GTK_TOGGLE_BUTTON(
+							log_formatting_success_messages_btn));
+		logFormattingSuccessMessages = value;
+		config_set_setting(
+			keyfile_plugin, fcfg_e_logMsgOnFormattingSuccess, value);
 
 		value = gtk_toggle_button_get_active(
 					GTK_TOGGLE_BUTTON(values_identation_tabs_rbtn));
 		textIdentationWithTabs = value;
-		config_set_setting(keyfile_plugin, fcfg_e_useTabsForIdent,
-							value);
+		config_set_setting(
+			keyfile_plugin, fcfg_e_useTabsForIdent,	value);
 
 		i = gtk_spin_button_get_value_as_int(
 				GTK_SPIN_BUTTON(values_identation_symbols_count_sbtn));
 		textIdentationSymbolsCount = i;
 
 		for (i = 0; i < textIdentationSymbolsCount; ++i) {
-			textIdentationString[i] = (textIdentationWithTabs ? '\t' : ' ');
+			textIdentationString[i] =
+				(textIdentationWithTabs ? '\t' : ' ');
 		}
 		textIdentationString[i] = '\0';
 
@@ -447,6 +485,9 @@ static void config_set_defaults(GKeyFile *keyfile)
 
 	config_set_uint_setting(keyfile, fcfg_e_identSymbolsCnt,
 		textIdentationSymbolsCount = 4, 1024);
+
+	config_set_setting(keyfile, fcfg_e_logMsgOnFormattingSuccess,
+		logFormattingSuccessMessages = TRUE);
 }
 
 GtkWidget *plugin_configure(GtkDialog *dialog)
@@ -460,6 +501,7 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	GtkWidget *_hbox3 = gtk_hbox_new(FALSE, 6);
 	GtkWidget *_hbox4 = gtk_hbox_new(FALSE, 6);
 	GtkWidget *_hbox5 = gtk_hbox_new(FALSE, 6);
+	GtkWidget *_hbox6 = gtk_hbox_new(FALSE, 6);
 
 
 	escape_forward_slashes_btn = gtk_check_button_new_with_label(
@@ -478,6 +520,7 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 		config_get_setting(keyfile_plugin,
 				fcfg_e_allowInvalUtf8TextStr));
 
+
 	reformat_multiple_json_entities_at_once_btn =
 		gtk_check_button_new_with_label(
 				_("Reformat multiple JSON entities at once."));
@@ -486,8 +529,8 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 		config_get_setting(keyfile_plugin,
 				fcfg_e_reformatMultJsonEntities));
 
-	isSet = config_get_setting(keyfile_plugin,
-				fcfg_e_useTabsForIdent);
+
+	isSet = config_get_setting(keyfile_plugin, fcfg_e_useTabsForIdent);
 
 	values_identation_spaces_rbtn = gtk_radio_button_new_with_label(
 			NULL, "Ident values with spaces");
@@ -517,11 +560,23 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(
 		values_identation_symbols_count_sbtn), i);
 
+
 	show_errors_in_window_btn = gtk_check_button_new_with_label(
 				_("Show errors in a message window."));
 	gtk_toggle_button_set_active(
 		GTK_TOGGLE_BUTTON(show_errors_in_window_btn),
 		config_get_setting(keyfile_plugin, fcfg_e_showErrsInWindow));
+
+
+	log_formatting_success_messages_btn =
+		gtk_check_button_new_with_label(
+		_("Log successful formatting messages."));
+	gtk_toggle_button_set_active(
+		GTK_TOGGLE_BUTTON(log_formatting_success_messages_btn),
+		config_get_setting(
+			keyfile_plugin, fcfg_e_logMsgOnFormattingSuccess)
+	);
+
 
 	gtk_box_pack_start(GTK_BOX(_hbox1), escape_forward_slashes_btn,
 						TRUE, TRUE, 0);
@@ -548,11 +603,15 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	gtk_box_pack_start(GTK_BOX(_hbox5),	show_errors_in_window_btn,
 						TRUE, TRUE, 0);
 
+	gtk_box_pack_start(GTK_BOX(_hbox6),
+		log_formatting_success_messages_btn, TRUE, TRUE, 0);
+
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox1, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox2, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox3, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox4, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox5, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), _hbox6, FALSE, FALSE, 0);
 
 	gtk_widget_show_all(vbox);
 
@@ -637,6 +696,9 @@ void plugin_init(GeanyData *data)
 			textIdentationString[i] = (textIdentationWithTabs ? '\t' : ' ');
 		}
 		textIdentationString[i] = '\0';
+
+		logFormattingSuccessMessages = config_get_setting(
+				keyfile_plugin, fcfg_e_logMsgOnFormattingSuccess);
 	}
 
 	/* ---------------------------- */
