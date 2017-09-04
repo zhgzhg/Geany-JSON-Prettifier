@@ -47,7 +47,7 @@ GeanyData *geany_data;
 static gchar *plugin_config_path = NULL;
 static GKeyFile *keyfile_plugin = NULL;
 
-PLUGIN_VERSION_CHECK(224)
+PLUGIN_VERSION_CHECK(231)
 
 PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	GETTEXT_PACKAGE,
