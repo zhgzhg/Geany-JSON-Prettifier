@@ -40,3 +40,9 @@ To compile run: `make`
 To install (you may need root privileges) run: `make install`
 
 To uninstall (you may need root privileges) run: `make uninstall`
+
+
+Other Useful Plugins
+--------------------
+* [Geany Generic SQL Formatter](https://github.com/zhgzhg/Geany-Generic-SQL-Formatter)
+* [Geany Unix Timestamp Converter](https://github.com/zhgzhg/Geany-Unix-Timestamp-Converter)
