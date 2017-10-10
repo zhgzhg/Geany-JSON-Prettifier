@@ -17,7 +17,7 @@ Features:
 of them (configurable)
 * Support for partial formatting limited to the text that is currently
 selected
-* Identation format settings (spaces or tabs plus number of symbols)
+* Indentation format settings (spaces or tabs plus number of symbols)
 
 * Supported platforms: Linux
 * License: GPLv2 or later
@@ -41,6 +41,9 @@ To install (you may need root privileges) run: `make install`
 
 To uninstall (you may need root privileges) run: `make uninstall`
 
+Attention MacOS users - this plugin will work with the manually
+installed and compiled Geany editor from source code. It will not work
+with the version installed from dmg files.
 
 Other Useful Plugins
 --------------------
