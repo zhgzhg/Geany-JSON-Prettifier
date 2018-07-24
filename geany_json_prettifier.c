@@ -533,14 +533,14 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	isSet = config_get_setting(keyfile_plugin, fcfg_e_useTabsForIdent);
 
 	values_identation_spaces_rbtn = gtk_radio_button_new_with_label(
-			NULL, "Ident values with spaces");
+			NULL, "Indent values with spaces");
 	gtk_toggle_button_set_active(
 			GTK_TOGGLE_BUTTON(values_identation_spaces_rbtn), isSet);
 
 	values_identation_tabs_rbtn = gtk_radio_button_new_with_label(
 		gtk_radio_button_get_group(GTK_RADIO_BUTTON(
 				values_identation_spaces_rbtn)),
-				"Ident values with tabs");
+				"Indent values with tabs");
 	gtk_toggle_button_set_active(
 		GTK_TOGGLE_BUTTON (values_identation_tabs_rbtn), isSet);
 	gtk_toggle_button_set_active(
