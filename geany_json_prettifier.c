@@ -47,8 +47,7 @@ GeanyData *geany_data;
 static gchar *plugin_config_path = NULL;
 static GKeyFile *keyfile_plugin = NULL;
 
-//PLUGIN_VERSION_CHECK(238)
-PLUGIN_VERSION_CHECK(231)
+PLUGIN_VERSION_CHECK(235)
 
 PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	GETTEXT_PACKAGE,
@@ -77,6 +76,8 @@ static const gchar *fcfg_e_indentSymbolsCntAlias =
 	"identation_symbols_count";
 static const gchar *fcfg_e_logMsgOnFormattingSuccess =
 	"log_formatting_success_messages";
+static const gchar *fcfg_e_allowComments =
+	"allow_comments";
 
 static GtkWidget *main_menu_item = NULL;
 static GtkWidget *main_menu_item2 = NULL;
@@ -89,6 +90,7 @@ static GtkWidget *values_indentation_spaces_rbtn = NULL;
 static GtkWidget *values_indentation_symbols_count_lbl = NULL;
 static GtkWidget *values_indentation_symbols_count_sbtn = NULL;
 static GtkWidget *log_formatting_success_messages_btn = NULL;
+static GtkWidget *allow_comments_btn = NULL;
 
 static gboolean escapeForwardSlashes = FALSE;
 static gboolean allowInvalidStringsInUtf8 = TRUE;
@@ -98,6 +100,7 @@ static gboolean textIndentationWithTabs = FALSE;
 static guint textIndentationSymbolsCount = 4;
 static gchar textIndentationString[1025] = "    ";
 static gboolean logFormattingSuccessMessages = TRUE;
+static gboolean allowComments = TRUE;
 
 /* JSON Prettifier Code - yajl example used as a basis */
 
@@ -217,7 +220,8 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 		if (text_string != NULL)
 		{
 			workWithTextSelection = TRUE;
-			text_len = sci_get_selected_text_length(doc->editor->sci) + 1;
+			text_len =
+				sci_get_selected_text_length(doc->editor->sci) + 1;
 		}
 	}
 	else
@@ -267,6 +271,7 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 			allowInvalidStringsInUtf8);
 	yajl_config(hand, yajl_allow_multiple_values,
 			reformatMultipleJsonEntities);
+	yajl_config(hand, yajl_allow_comments, allowComments);
 
 	stat = yajl_parse(hand, (unsigned char*)text_string,
 						(size_t)text_len - 1);
@@ -487,6 +492,13 @@ static void on_configure_response(GtkDialog* dialog, gint response,
 		config_set_uint_setting(keyfile_plugin, fcfg_e_indentSymbolsCnt,
 			fcfg_e_indentSymbolsCntAlias, i, 1024);
 
+		value = gtk_toggle_button_get_active(
+						GTK_TOGGLE_BUTTON(
+							allow_comments_btn));
+		allowComments = value;
+		config_set_setting(keyfile_plugin,
+			fcfg_e_allowComments, NULL, value);
+
 		config_save_setting(keyfile_plugin, plugin_config_path);
 	}
 }
@@ -516,6 +528,9 @@ static void config_set_defaults(GKeyFile *keyfile)
 
 	config_set_setting(keyfile, fcfg_e_logMsgOnFormattingSuccess, NULL,
 		logFormattingSuccessMessages = TRUE);
+
+	config_set_setting(keyfile, fcfg_e_allowComments, NULL,
+		allowComments = TRUE);
 }
 
 GtkWidget *plugin_configure(GtkDialog *dialog)
@@ -523,13 +538,14 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	gboolean isSet = FALSE;
 	gint i = 0;
 
-	GtkWidget *vbox = gtk_vbox_new(FALSE, 6);
-	GtkWidget *_hbox1 = gtk_hbox_new(FALSE, 6);
-	GtkWidget *_hbox2 = gtk_hbox_new(FALSE, 6);
-	GtkWidget *_hbox3 = gtk_hbox_new(FALSE, 6);
-	GtkWidget *_hbox4 = gtk_hbox_new(FALSE, 6);
-	GtkWidget *_hbox5 = gtk_hbox_new(FALSE, 6);
-	GtkWidget *_hbox6 = gtk_hbox_new(FALSE, 6);
+	GtkWidget *vbox = gtk_vbox_new(FALSE, 7);
+	GtkWidget *_hbox1 = gtk_hbox_new(FALSE, 7);
+	GtkWidget *_hbox2 = gtk_hbox_new(FALSE, 7);
+	GtkWidget *_hbox3 = gtk_hbox_new(FALSE, 7);
+	GtkWidget *_hbox4 = gtk_hbox_new(FALSE, 7);
+	GtkWidget *_hbox5 = gtk_hbox_new(FALSE, 7);
+	GtkWidget *_hbox6 = gtk_hbox_new(FALSE, 7);
+	GtkWidget *_hbox7 = gtk_hbox_new(FALSE, 7);
 
 
 	escape_forward_slashes_btn = gtk_check_button_new_with_label(
@@ -610,6 +626,15 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 			keyfile_plugin, fcfg_e_logMsgOnFormattingSuccess, NULL)
 	);
 
+	allow_comments_btn = gtk_check_button_new_with_label(_("Allow ("
+		"effectively strip and ignore) multiline comments like for e.g."
+		" /* comment */."));
+
+	gtk_toggle_button_set_active(
+		GTK_TOGGLE_BUTTON(allow_comments_btn),
+		config_get_setting(keyfile_plugin, fcfg_e_allowComments, NULL)
+	);
+
 
 	gtk_box_pack_start(GTK_BOX(_hbox1), escape_forward_slashes_btn,
 						TRUE, TRUE, 0);
@@ -639,12 +664,16 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	gtk_box_pack_start(GTK_BOX(_hbox6),
 		log_formatting_success_messages_btn, TRUE, TRUE, 0);
 
+	gtk_box_pack_start(GTK_BOX(_hbox7),
+		allow_comments_btn, TRUE, TRUE, 0);
+
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox1, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox2, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox3, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox4, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox5, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), _hbox6, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), _hbox7, FALSE, FALSE, 0);
 
 	gtk_widget_show_all(vbox);
 
@@ -658,24 +687,16 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 /* Geany plugin EP code */
 
 static void item_activate_cb(GtkMenuItem *menuitem, gpointer gdata)
-{
-	my_json_prettify(document_get_current(), TRUE);
-}
+{ my_json_prettify(document_get_current(), TRUE); }
 
 static void kb_run_json_prettifier(G_GNUC_UNUSED guint key_id)
-{
-	my_json_prettify(document_get_current(), TRUE);
-}
+{ my_json_prettify(document_get_current(), TRUE); }
 
 static void item_activate_cb2(GtkMenuItem *menuitem, gpointer gdata)
-{
-	my_json_prettify(document_get_current(), FALSE);
-}
+{ my_json_prettify(document_get_current(), FALSE); }
 
 static void kb_run_json_minifier(G_GNUC_UNUSED guint key_id)
-{
-	my_json_prettify(document_get_current(), FALSE);
-}
+{ my_json_prettify(document_get_current(), FALSE); }
 
 void plugin_init(GeanyData *data)
 {
@@ -735,6 +756,9 @@ void plugin_init(GeanyData *data)
 
 		logFormattingSuccessMessages = config_get_setting(
 				keyfile_plugin, fcfg_e_logMsgOnFormattingSuccess, NULL);
+
+		allowComments = config_get_setting(
+				keyfile_plugin, fcfg_e_allowComments, NULL);
 	}
 
 	/* ---------------------------- */
