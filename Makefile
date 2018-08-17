@@ -27,6 +27,8 @@ build:
 
 install: globaluninstall globalinstall localuninstall
 
+uninstall: globaluninstall
+
 globaluninstall:
 	rm -f $(libdir)/jsonprettifier.*
 	rm -f $(libdir)/json_prettifier.*
