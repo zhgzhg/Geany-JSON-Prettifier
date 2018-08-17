@@ -25,15 +25,22 @@ build:
 	gcc -DLOCALEDIR=\"\" -DGETTEXT_PACKAGE=\"zhgzhg\" -c ./geany_json_prettifier.c -fPIC `pkg-config --cflags geany`
 	gcc geany_json_prettifier.o -o jsonprettifier.so "./lloyd-yajl-66cb08c/build/yajl-2.1.0/lib/libyajl_s.a" $(CFLAGS) `pkg-config --libs geany`
 
-install: uninstall startinstall
+install: globaluninstall globalinstall localuninstall
 
-startinstall:
+globaluninstall:
+	rm -f $(libdir)/jsonprettifier.*
+	rm -f $(libdir)/json_prettifier.*
+
+globalinstall:
 	cp -f ./jsonprettifier.so $(libdir)
 	chmod 755 $(libdir)/jsonprettifier.so
 
-uninstall:
-	rm -f $(libdir)/jsonprettifier.*
-	rm -f $(libdir)/json_prettifier.*
+localinstall: localuninstall
+	cp -f ./jsonprettifier.so $(HOME)/.config/geany/plugins
+	chmod 755 $(HOME)/.config/geany/plugins/jsonprettifier.so
+
+localuninstall:
+	rm -f $(HOME)/.config/geany/plugins/jsonprettifier.so
 
 clean:
 	rm -f ./jsonprettifier.so
