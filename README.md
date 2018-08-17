@@ -41,6 +41,18 @@ To install (you may need root privileges) run: `make install`
 
 To uninstall (you may need root privileges) run: `make uninstall`
 
+Local to the current account installation
+-----------------------------------------
+
+This is an alternative to globally install the plugin for all users.
+
+To install for the current account run: `make localinstall`
+
+To uninstall for the current account run: `make localuninstall`
+
+Other notes
+-----------
+
 Attention MacOS users - this plugin will work with the manually
 installed and compiled Geany editor from source code. It will not work
 with the version installed from dmg files.
