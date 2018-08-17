@@ -44,7 +44,7 @@ To uninstall (you may need root privileges) run: `make uninstall`
 Local to the current account installation
 -----------------------------------------
 
-This is an alternative to globally install the plugin for all users.
+This is an alternative to globally install the plugin for all users. This might not work on macOS.
 
 To install for the current account run: `make localinstall`
 
@@ -53,9 +53,10 @@ To uninstall for the current account run: `make localuninstall`
 Other notes
 -----------
 
-Attention MacOS users - this plugin will work with the manually
+Attention macOS users - this plugin will work with the manually
 installed and compiled Geany editor from source code. It will not work
-with the version installed from dmg files.
+with the version installed from dmg files. When installing the plugin
+make sure to use the install/uninstall commands.
 
 Other Useful Plugins
 --------------------
