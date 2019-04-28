@@ -30,19 +30,20 @@ install: globaluninstall globalinstall localuninstall
 uninstall: globaluninstall
 
 globaluninstall:
+	rm -f "$(libdir)/jsonprettifier.so"
 	rm -f $(libdir)/jsonprettifier.*
 	rm -f $(libdir)/json_prettifier.*
 
 globalinstall:
-	cp -f ./jsonprettifier.so $(libdir)
-	chmod 755 $(libdir)/jsonprettifier.so
+	cp -f ./jsonprettifier.so "$(libdir)/jsonprettifier.so"
+	chmod 755 "$(libdir)/jsonprettifier.so"
 
 localinstall: localuninstall
-	cp -f ./jsonprettifier.so $(HOME)/.config/geany/plugins/jsonprettifier.so
-	chmod 755 $(HOME)/.config/geany/plugins/jsonprettifier.so
+	cp -f ./jsonprettifier.so "$(HOME)/.config/geany/plugins/jsonprettifier.so"
+	chmod 755 "$(HOME)/.config/geany/plugins/jsonprettifier.so"
 
 localuninstall:
-	rm -f $(HOME)/.config/geany/plugins/jsonprettifier.so
+	rm -f "$(HOME)/.config/geany/plugins/jsonprettifier.so"
 
 clean:
 	rm -f ./jsonprettifier.so
