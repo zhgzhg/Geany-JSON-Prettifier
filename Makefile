@@ -38,7 +38,7 @@ globalinstall:
 	chmod 755 $(libdir)/jsonprettifier.so
 
 localinstall: localuninstall
-	cp -f ./jsonprettifier.so $(HOME)/.config/geany/plugins
+	cp -f ./jsonprettifier.so $(HOME)/.config/geany/plugins/jsonprettifier.so
 	chmod 755 $(HOME)/.config/geany/plugins/jsonprettifier.so
 
 localuninstall:
