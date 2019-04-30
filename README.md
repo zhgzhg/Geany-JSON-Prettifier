@@ -24,13 +24,13 @@ selected
 
 Dependencies:
 
-* geany, geany-dev(el), geany-plugins-common
-* gtk+2.0-dev(el)
-* yajl, yajl-dev(el)  --- version(2) --- integrated in this repository
-
+* geany
+* geany-devel or geany-common  (depending on the distro)
+* gtk+3.0-dev(el) or gtk+2.0-dev(el)  (depending on the distro)
 * make
 * cmake
 * pkg-config
+* yajl, yajl-dev(el) - version 2.1.0 - **integrated in this repository**
 
 Compilation
 -----------
