@@ -1,5 +1,6 @@
 libdir.x86_64 := $(shell if [ -d "/usr/lib/x86_64-linux-gnu" ]; then echo "/usr/lib/x86_64-linux-gnu"; else echo "/usr/lib64"; fi )
 libdir.i686   := $(shell if [ -d "/usr/lib/i386-linux-gnu" ]; then echo "/usr/lib/i386-linux-gnu"; else echo "/usr/lib"; fi )
+libdir.arm    := $(shell if [ -d "/usr/lib/arm-linux-gnueabihf" ]; then echo "/usr/lib/arm-linux-gnueabihf"; else echo "/usr/lib"; fi )
 libdir.macos  := /usr/local/lib
 
 ISNOTMACOS := $(shell uname -a | grep "Darwin" >/dev/null ; echo $$? )
@@ -9,6 +10,9 @@ ifeq ($(ISNOTMACOS), 0)
 	CFLAGS := -bundle
 else
 	MACHINE := $(shell uname -m)
+	ifneq (, $(findstring armv, $(MACHINE)))
+		 MACHINE := arm
+	endif
 	CFLAGS := -shared
 endif
 
