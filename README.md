@@ -37,14 +37,14 @@ Compilation
 
 To compile run: `make`
 
-To install (you may need root privileges) run: `make install`
+To install (root privileges needed) run: `sudo make install`
 
-To uninstall (you may need root privileges) run: `make uninstall`
+To uninstall (root privileges needed) run: `sudo make uninstall`
 
-Local to the current account installation
+Local to the current account installation 
 -----------------------------------------
 
-This is an alternative to globally install the plugin for all users.
+This is an alternative to globally install the plugin for all users. No root privileges needed.
 
 To install for the current account run: `make localinstall`
 
