@@ -537,6 +537,8 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	gboolean isSet = FALSE;
 	gint i = 0;
 
+#if !(GTK_CHECK_VERSION(3, 2, 0))
+
 	GtkWidget *vbox = gtk_vbox_new(FALSE, 7);
 	GtkWidget *_hbox1 = gtk_hbox_new(FALSE, 7);
 	GtkWidget *_hbox2 = gtk_hbox_new(FALSE, 7);
@@ -545,6 +547,19 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 	GtkWidget *_hbox5 = gtk_hbox_new(FALSE, 7);
 	GtkWidget *_hbox6 = gtk_hbox_new(FALSE, 7);
 	GtkWidget *_hbox7 = gtk_hbox_new(FALSE, 7);
+
+#else
+
+	GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 7);
+	GtkWidget *_hbox1 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 7);
+	GtkWidget *_hbox2 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 7);
+	GtkWidget *_hbox3 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 7);
+	GtkWidget *_hbox4 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 7);
+	GtkWidget *_hbox5 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 7);
+	GtkWidget *_hbox6 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 7);
+	GtkWidget *_hbox7 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 7);
+
+#endif
 
 
 	escape_forward_slashes_btn = gtk_check_button_new_with_label(
