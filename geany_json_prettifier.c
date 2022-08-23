@@ -2,7 +2,7 @@
  * geany_json_prettifier.c - a Geany plugin to format not formatted
  *                            JSON files
  *
- *  Copyright 2018 zhgzhg @ github.com
+ *  Copyright 2022 zhgzhg @ github.com
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	_("JSON Prettifier"),
 	_("JSON file format prettifier, minifier and validator.\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"),
-	"1.6.0",
+	"1.6.1",
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );
@@ -341,8 +341,7 @@ Probably improper format or odd symbols! (%s)",
 
 		if (showErrorsInPopupWindow)
 		{
-			dialogs_show_msgbox(GTK_MESSAGE_ERROR,
-				(const gchar*) err_str);
+			dialogs_show_msgbox(GTK_MESSAGE_ERROR, "%s", err_str);
 		}
 
 		yajl_free_error(hand, err_str);
