@@ -61,3 +61,4 @@ Other Useful Plugins
 --------------------
 * [Geany Generic SQL Formatter](https://github.com/zhgzhg/Geany-Generic-SQL-Formatter)
 * [Geany Unix Timestamp Converter](https://github.com/zhgzhg/Geany-Unix-Timestamp-Converter)
+* [Geany Base64 Converter](https://github.com/zhgzhg/Geany-Base64-Converter)
