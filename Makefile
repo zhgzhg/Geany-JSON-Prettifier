@@ -1,7 +1,8 @@
-libdir.x86_64 := $(shell if [ -d "/usr/lib/x86_64-linux-gnu" ]; then echo "/usr/lib/x86_64-linux-gnu"; else echo "/usr/lib64"; fi )
-libdir.i686   := $(shell if [ -d "/usr/lib/i386-linux-gnu" ]; then echo "/usr/lib/i386-linux-gnu"; else echo "/usr/lib"; fi )
-libdir.arm    := $(shell if [ -d "/usr/lib/arm-linux-gnueabihf" ]; then echo "/usr/lib/arm-linux-gnueabihf"; else echo "/usr/lib"; fi )
-libdir.macos  := /usr/local/lib
+libdir.x86_64  := $(shell if [ -d "/usr/lib/x86_64-linux-gnu" ]; then echo "/usr/lib/x86_64-linux-gnu"; else echo "/usr/lib64"; fi )
+libdir.i686    := $(shell if [ -d "/usr/lib/i386-linux-gnu" ]; then echo "/usr/lib/i386-linux-gnu"; else echo "/usr/lib"; fi )
+libdir.arm     := $(shell if [ -d "/usr/lib/arm-linux-gnueabihf" ]; then echo "/usr/lib/arm-linux-gnueabihf"; else echo "/usr/lib"; fi )
+libdir.aarch64 := $(shell if [ -d "/usr/lib/aarch64-linux-gnu" ]; then echo "/usr/lib/aarch64-linux-gnu"; else echo "/usr/lib"; fi )
+libdir.macos   := /usr/local/lib
 
 ISNOTMACOS := $(shell uname -a | grep "Darwin" >/dev/null ; echo $$? )
 
@@ -11,7 +12,7 @@ ifeq ($(ISNOTMACOS), 0)
 else
 	MACHINE := $(shell uname -m)
 	ifneq (, $(findstring armv, $(MACHINE)))
-		 MACHINE := arm
+		MACHINE := arm
 	endif
 	CFLAGS := -shared
 endif
@@ -55,3 +56,5 @@ clean:
 	rm -f ./geany_json_prettifier.o
 	rm -f ./lloyd-yajl-66cb08c/Makefile
 	rm -fr ./lloyd-yajl-66cb08c/build
+
+.PHONY: all prepare build install uninstall globaluninstall globalinstall localinstall localuninstall clean
