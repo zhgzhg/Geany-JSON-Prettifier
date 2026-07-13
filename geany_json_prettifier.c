@@ -97,8 +97,8 @@ static gboolean allowInvalidStringsInUtf8 = TRUE;
 static gboolean reformatMultipleJsonEntities = FALSE;
 static gboolean showErrorsInPopupWindow = TRUE;
 static gboolean textIndentationWithTabs = FALSE;
-static guint textIndentationSymbolsCount = 4;
-static gchar textIndentationString[1025] = "    ";
+static guint textIndentationSymbolsCount = 2;
+static gchar textIndentationString[1025] = "  ";
 static gboolean logFormattingSuccessMessages = TRUE;
 static gboolean allowComments = TRUE;
 
@@ -522,7 +522,7 @@ static void config_set_defaults(GKeyFile *keyfile)
 		fcfg_e_useTabsForIndentAlias, textIndentationWithTabs = FALSE);
 
 	config_set_uint_setting(keyfile, fcfg_e_indentSymbolsCnt,
-		fcfg_e_indentSymbolsCntAlias, textIndentationSymbolsCount = 4,
+		fcfg_e_indentSymbolsCntAlias, textIndentationSymbolsCount = 2,
 		1024);
 
 	config_set_setting(keyfile, fcfg_e_logMsgOnFormattingSuccess, NULL,
@@ -615,7 +615,7 @@ GtkWidget *plugin_configure(GtkDialog *dialog)
 		if (isSet) {
 			i = 1;
 		} else {
-			i = 4;
+			i = 2;
 		}
 	}
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(
@@ -760,7 +760,7 @@ void plugin_init(GeanyData *data)
 
 		if (textIndentationSymbolsCount == 0) {
 			textIndentationSymbolsCount = (textIndentationWithTabs ?
-				1 : 4);
+				1 : 2);
 		}
 		for (i = 0; i < textIndentationSymbolsCount; ++i) {
 			textIndentationString[i] =
