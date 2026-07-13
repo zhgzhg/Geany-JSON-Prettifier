@@ -29,9 +29,8 @@ ADD_EXECUTABLE(json_verify ${SRCS})
 TARGET_LINK_LIBRARIES(json_verify yajl_s)
 
 # copy in the binary
-GET_TARGET_PROPERTY(binPath json_verify LOCATION)
-
 ADD_CUSTOM_COMMAND(TARGET json_verify POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${binPath} ${binDir})
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:json_reformat> "${binDir}/$<TARGET_FILE_NAME:json_reformat>")
 
 INSTALL(TARGETS json_verify RUNTIME DESTINATION bin)

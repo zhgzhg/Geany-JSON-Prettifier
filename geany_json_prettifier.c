@@ -2,7 +2,7 @@
  * geany_json_prettifier.c - a Geany plugin to format not formatted
  *                            JSON files
  *
- *  Copyright 2022 zhgzhg @ github.com
+ *  Copyright 2026 zhgzhg @ github.com
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ PLUGIN_SET_TRANSLATABLE_INFO(LOCALEDIR,
 	_("JSON Prettifier"),
 	_("JSON file format prettifier, minifier and validator.\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"),
-	"1.6.1",
+	"1.7.0",
 	"zhgzhg @@ github.com\n\
 https://github.com/zhgzhg/Geany-JSON-Prettifier"
 );

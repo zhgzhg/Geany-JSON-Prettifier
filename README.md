@@ -28,7 +28,7 @@ Dependencies:
 * geany-devel or geany-common  (depending on the distro)
 * gtk+3.0-dev(/el) **or** gtk+2.0-dev(/el) **or** libgtk-3-dev(/el)  (depending on the distro)
 * make
-* cmake
+* cmake 3.12+
 * pkg-config
 * yajl, yajl-dev(el) - version 2.1.0 - **integrated in this repository**
 
