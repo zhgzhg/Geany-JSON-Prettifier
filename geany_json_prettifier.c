@@ -259,6 +259,11 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 
 
 	g = yajl_gen_alloc(NULL);
+	if (g == NULL)
+	{
+		g_free(text_string);
+		return;
+	}
 	yajl_gen_config(g, yajl_gen_beautify, beautify);
 	yajl_gen_config(g, yajl_gen_validate_utf8, 1);
 	yajl_gen_config(g, yajl_gen_escape_solidus,
@@ -267,6 +272,12 @@ static void my_json_prettify(GeanyDocument *doc, gboolean beautify)
 
 
 	hand = yajl_alloc(&callbacks, NULL, (void *) g);
+	if (hand == NULL)
+	{
+		yajl_gen_free(g);
+		g_free(text_string);
+		return;
+	}
 	yajl_config(hand, yajl_dont_validate_strings,
 			allowInvalidStringsInUtf8);
 	yajl_config(hand, yajl_allow_multiple_values,
